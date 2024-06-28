@@ -117,7 +117,7 @@ A given invocation to `MyCustomerService#readCustomer` may look something like t
 
 image::{figures}/methodsecurity.png[]
 
-1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor/html[`AuthorizationManagerBeforeMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
+1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
 2. The interceptor invokes {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager#check`]
 3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's <<authorization-expressions,SpEL expression>> and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
 4. The interceptor uses this context to evaluate the expression; specifically, it reads xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] from the `Supplier` and checks whether it has `permission:read` in its collection of xref:servlet/authorization/architecture.adoc#authz-authorities[authorities]
@@ -162,7 +162,7 @@ For example, if needed, you can disable the Spring Security defaults and <<_enab
 The method interceptors are as follows:
 
 * For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager`]
-* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
+* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerAfterMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
 * For <<use-prefilter,`@PreFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PreFilterAuthorizationMethodInterceptor.html[`PreFilterAuthorizationMethodInterceptor`]
 * For <<use-postfilter,`@PostFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PostFilterAuthorizationMethodInterceptor.html[`PostFilterAuthorizationMethodInterceptor`]
 * For <<use-secured,`@Secured`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses {security-api-url}org/springframework/security/authorization/method/SecuredAuthorizationManager.html[`SecuredAuthorizationManager`]
@@ -546,9 +546,6 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 [[use-prefilter]]
 === Filtering Method Parameters with `@PreFilter`
 
-[NOTE]
-`@PreFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
-
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreFilter.html[`@PreFilter`] annotation like so:
 
 [tabs]
@@ -563,6 +560,20 @@ public class BankService {
 	public Collection<Account> updateAccounts(Account... accounts) {
         // ... `accounts` will only contain the accounts owned by the logged-in user
         return updated;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun updateAccounts(vararg accounts: Account): Collection<Account> {
+        // ... `accounts` will only contain the accounts owned by the logged-in user
+        return updated
 	}
 }
 ----
@@ -589,6 +600,23 @@ void updateAccountsWhenOwnedThenReturns() {
     Account notOwnedBy = ...
     Collection<Account> updated = this.bankService.updateAccounts(ownedBy, notOwnedBy);
     assertThat(updated).containsOnly(ownedBy);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun updateAccountsWhenOwnedThenReturns() {
+    val ownedBy: Account = ...
+    val notOwnedBy: Account = ...
+    val updated: Collection<Account> = bankService.updateAccounts(ownedBy, notOwnedBy)
+    assertThat(updated).containsOnly(ownedBy)
 }
 ----
 ======
@@ -618,15 +646,29 @@ public Collection<Account> updateAccounts(Map<String, Account> accounts)
 @PreFilter("filterObject.owner == authentication.name")
 public Collection<Account> updateAccounts(Stream<Account> accounts)
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Array<Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Collection<Account>): Collection<Account>
+
+@PreFilter("filterObject.value.owner == authentication.name")
+fun updateAccounts(accounts: Map<String, Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Stream<Account>): Collection<Account>
+----
 ======
 
 The result is that the above method will only have the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
 [[use-postfilter]]
 === Filtering Method Results with `@PostFilter`
-
-[NOTE]
-`@PostFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
 
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostFilter.html[`@PostFilter`] annotation like so:
 
@@ -642,6 +684,20 @@ public class BankService {
 	public Collection<Account> readAccounts(String... ids) {
         // ... the return value will be filtered to only contain the accounts owned by the logged-in user
         return accounts;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun readAccounts(vararg ids: String): Collection<Account> {
+        // ... the return value will be filtered to only contain the accounts owned by the logged-in user
+        return accounts
 	}
 }
 ----
@@ -669,6 +725,22 @@ void readAccountsWhenOwnedThenReturns() {
     assertThat(accounts.get(0).getOwner()).isEqualTo("owner");
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun readAccountsWhenOwnedThenReturns() {
+    val accounts: Collection<Account> = bankService.updateAccounts("owner", "not-owner")
+    assertThat(accounts).hasSize(1)
+    assertThat(accounts[0].owner).isEqualTo("owner")
+}
+----
 ======
 
 [TIP]
@@ -678,7 +750,15 @@ void readAccountsWhenOwnedThenReturns() {
 
 For example, the above `readAccounts` declaration will function the same way as the following other three:
 
-```java
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+public Collection<Account> readAccounts(String... ids)
+
 @PostFilter("filterObject.owner == authentication.name")
 public Account[] readAccounts(String... ids)
 
@@ -687,7 +767,25 @@ public Map<String, Account> readAccounts(String... ids)
 
 @PostFilter("filterObject.owner == authentication.name")
 public Stream<Account> readAccounts(String... ids)
-```
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Collection<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Array<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Map<String, Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Stream<Account>
+----
+======
 
 The result is that the above method will return the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
@@ -1074,7 +1172,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postAuthorize() {
-		return AuthorizationManagerBeforeMethodInterceptor.postAuthorize();
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize();
 	}
 }
 ----
@@ -1089,7 +1187,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun postAuthorize() : Advisor {
-		return AuthorizationManagerBeforeMethodInterceptor.postAuthorize()
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize()
 	}
 }
 ----
