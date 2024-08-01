@@ -71,9 +71,9 @@ public class UniqueMergedAnnotationSynthesizerTests {
 
 	@Test
 	void synthesizeWhenInterfaceOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
-		Method method = InterfaceOverridingMultipleInterfaceInheritance.class.getMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method,
-				InterfaceOverridingMultipleInterfaceInheritance.class);
+		Method method = ClassInheritingInterfaceOverridingMultipleInterfaceInheritance.class
+			.getDeclaredMethod("method");
+		PreAuthorize preAuthorize = this.synthesizer.synthesize(method);
 		assertThat(preAuthorize.value()).isEqualTo("ten");
 	}
 
@@ -199,10 +199,10 @@ public class UniqueMergedAnnotationSynthesizerTests {
 
 	// gh-13234
 	@Test
-	void synthesizeWhenClassInheritingGrandparentInterfaceAnnotationThenResolves() throws Exception {
-		Method method = ClassInheritingGrandparentInterfaceAnnotation.class.getDeclaredMethod("method");
+	void synthesizeWhenClassInheritingInterfaceAnnotationThenResolves() throws Exception {
+		Method method = ClassInheritingInterfaceMethodAnnotation.class.getDeclaredMethod("method");
 		PreAuthorize preAuthorize = this.synthesizer.synthesize(method);
-		assertThat(preAuthorize.value()).isEqualTo("one");
+		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	@Test
@@ -240,6 +240,15 @@ public class UniqueMergedAnnotationSynthesizerTests {
 		Method method = ClassInheritingInterfaceInheritingInterfaceMethodAnnotation.class.getDeclaredMethod("method");
 		PreAuthorize preAuthorize = this.synthesizer.synthesize(method);
 		assertThat(preAuthorize.value()).isEqualTo("three");
+	}
+
+	// gh-15352
+	@Test
+	void synthesizeWhenClassInheritingAbstractClassNoAnnotationsThenNoAnnotation() throws Exception {
+		Method method = ClassInheritingAbstractClassNoAnnotations.class.getMethod("otherMethod");
+		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
+		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, targetClass);
+		assertThat(preAuthorize).isNull();
 	}
 
 	@PreAuthorize("one")
@@ -308,6 +317,16 @@ public class UniqueMergedAnnotationSynthesizerTests {
 	@PreAuthorize("ten")
 	private interface InterfaceOverridingMultipleInterfaceInheritance
 			extends AnnotationOnInterface, AlsoAnnotationOnInterface {
+
+	}
+
+	private static class ClassInheritingInterfaceOverridingMultipleInterfaceInheritance
+			implements InterfaceOverridingMultipleInterfaceInheritance {
+
+		@Override
+		public String method() {
+			return "ok";
+		}
 
 	}
 
@@ -491,8 +510,7 @@ public class UniqueMergedAnnotationSynthesizerTests {
 
 	}
 
-	private static class ClassInheritingGrandparentInterfaceAnnotation
-			implements InterfaceInheritingInterfaceAnnotation {
+	private static class ClassInheritingInterfaceMethodAnnotation implements AnnotationOnInterfaceMethod {
 
 		@Override
 		public String method() {
@@ -543,6 +561,19 @@ public class UniqueMergedAnnotationSynthesizerTests {
 		public String method() {
 			return "ok";
 		}
+
+	}
+
+	public abstract static class AbstractClassNoAnnotations {
+
+		public String otherMethod() {
+			return "ok";
+		}
+
+	}
+
+	@PreAuthorize("twentynine")
+	private static class ClassInheritingAbstractClassNoAnnotations extends AbstractClassNoAnnotations {
 
 	}
 
