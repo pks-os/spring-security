@@ -30,7 +30,7 @@ com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.13.3"
 io-mockk = "io.mockk:mockk:1.13.12"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.8"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.9"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
@@ -70,7 +70,7 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.4.10.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.0.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.3"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
@@ -83,7 +83,7 @@ org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", v
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.23.0"
-org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.20.0"
+org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.23.1"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
