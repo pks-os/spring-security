@@ -1,7 +1,7 @@
 [versions]
 com-squareup-okhttp3 = "3.14.9"
 io-rsocket = "1.1.4"
-io-spring-javaformat = "0.0.42"
+io-spring-javaformat = "0.0.43"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.2.0"
 org-apache-directory-server = "1.5.5"
@@ -56,7 +56,7 @@ org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.di
 org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
 org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
-org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.8"
+org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.9"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
@@ -88,7 +88,7 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.16"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.2"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.3"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.6"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
