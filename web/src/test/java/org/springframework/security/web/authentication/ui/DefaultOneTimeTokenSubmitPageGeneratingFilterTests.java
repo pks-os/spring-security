@@ -78,6 +78,15 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 	}
 
 	@Test
+	void setContextThenGenerates() throws Exception {
+		this.request.setContextPath("/context");
+		this.filter.setLoginProcessingUrl("/login/another");
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		String response = this.response.getContentAsString();
+		assertThat(response).contains("<form class=\"login-form\" action=\"/context/login/another\" method=\"post\">");
+	}
+
+	@Test
 	void filterWhenTokenQueryParamUsesSpecialCharactersThenValueIsEscaped() throws Exception {
 		this.request.setParameter("token", "this<>!@#\"");
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
@@ -101,7 +110,6 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 						    <title>One-Time Token Login</title>
 						    <meta charset="utf-8"/>
 						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-						    <meta http-equiv="Content-Security-Policy" content="script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='"/>
 						    <style>
 						    /* General layout */
 						    body {
@@ -229,11 +237,6 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 						    </style>
 						  </head>
 						  <body>
-						    <noscript>
-						      <p>
-						        <strong>Note:</strong> Since your browser does not support JavaScript, you must press the Sign In button once to proceed.
-						      </p>
-						    </noscript>
 						    <div class="container">
 						      <form class="login-form" action="/login/another" method="post">
 						        <h2>Please input the token</h2>

@@ -66,6 +66,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 	private String generateHtml(HttpServletRequest request) {
 		String token = request.getParameter("token");
 		String tokenValue = StringUtils.hasText(token) ? token : "";
+		String contextPath = request.getContextPath();
 
 		String hiddenInputs = this.resolveHiddenInputs.apply(request)
 			.entrySet()
@@ -76,7 +77,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 		return HtmlTemplates.fromTemplate(ONE_TIME_TOKEN_SUBMIT_PAGE_TEMPLATE)
 			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
 			.withValue("tokenValue", tokenValue)
-			.withValue("loginProcessingUrl", this.loginProcessingUrl)
+			.withValue("loginProcessingUrl", contextPath + this.loginProcessingUrl)
 			.withRawHtml("hiddenInputs", hiddenInputs)
 			.render();
 	}
@@ -115,15 +116,9 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 			    <title>One-Time Token Login</title>
 			    <meta charset="utf-8"/>
 			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-			    <meta http-equiv="Content-Security-Policy" content="script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='"/>
 			{{cssStyle}}
 			  </head>
 			  <body>
-			    <noscript>
-			      <p>
-			        <strong>Note:</strong> Since your browser does not support JavaScript, you must press the Sign In button once to proceed.
-			      </p>
-			    </noscript>
 			    <div class="container">
 			      <form class="login-form" action="{{loginProcessingUrl}}" method="post">
 			        <h2>Please input the token</h2>
