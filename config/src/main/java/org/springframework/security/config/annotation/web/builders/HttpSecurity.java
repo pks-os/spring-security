@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,15 +29,16 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -3279,13 +3279,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			setSharedObject(AuthenticationManager.class, this.authenticationManager);
 		}
 		else {
-			ObservationRegistry registry = getObservationRegistry();
+			ObjectPostProcessor<AuthenticationManager> postProcessor = getAuthenticationManagerPostProcessor();
 			AuthenticationManager manager = getAuthenticationRegistry().build();
-			if (!registry.isNoop() && manager != null) {
-				setSharedObject(AuthenticationManager.class, new ObservationAuthenticationManager(registry, manager));
-			}
-			else {
-				setSharedObject(AuthenticationManager.class, manager);
+			if (manager != null) {
+				setSharedObject(AuthenticationManager.class, postProcessor.postProcess(manager));
 			}
 		}
 	}
@@ -3686,7 +3683,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
-		ObjectPostProcessor<Object> opp = getContext().getBean(ObjectPostProcessor.class);
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
+		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
+		ObjectPostProcessor<Object> opp = postProcessors.getObject();
 		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
 					+ " of type " + HandlerMappingIntrospector.class.getName()
@@ -3721,8 +3720,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return apply(configurer);
 	}
 
-	private ObservationRegistry getObservationRegistry() {
-		return getContext().getBeanProvider(ObservationRegistry.class).getIfUnique(() -> ObservationRegistry.NOOP);
+	private ObjectPostProcessor<AuthenticationManager> getAuthenticationManagerPostProcessor() {
+		ApplicationContext context = getContext();
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+				AuthenticationManager.class);
+		ObjectProvider<ObjectPostProcessor<AuthenticationManager>> manager = context.getBeanProvider(type);
+		return manager.getIfUnique(ObjectPostProcessor::identity);
 	}
 
 	/**
