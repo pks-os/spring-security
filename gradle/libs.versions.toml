@@ -48,7 +48,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
-org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.4.0"
+org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.5.0"
 org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
@@ -82,13 +82,13 @@ org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", 
 org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
-org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.23.0"
+org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.25.0"
 org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.25.0"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.16"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.4"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.5"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.7"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
@@ -106,6 +106,8 @@ org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
 org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.33.22"
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
+
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.27.0.RELEASE'
 
 [plugins]
 
