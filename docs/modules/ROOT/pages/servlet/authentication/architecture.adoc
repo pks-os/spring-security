@@ -195,6 +195,12 @@ image::{figures}/providermanagers-parent.png[]
 By default, `ProviderManager` tries to clear any sensitive credentials information from the `Authentication` object that is returned by a successful authentication request.
 This prevents information, such as passwords, being retained longer than necessary in the `HttpSession`.
 
+[NOTE]
+====
+The `CredentialsContainer` interface plays a critical role in the authentication process.
+It allows for the erasure of credential information once it is no longer needed, thereby enhancing security by ensuring sensitive data is not retained longer than necessary.
+====
+
 This may cause issues when you use a cache of user objects, for example, to improve performance in a stateless application.
 If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, it is no longer possible to authenticate against the cached value.
 You need to take this into account if you use a cache.
@@ -245,7 +251,7 @@ image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 
 * The <<servlet-authentication-securitycontextholder>> is cleared out.
-* `RememberMeServices.loginFail` is invoked.ƒ
+* `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
 See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `AuthenticationFailureHandler` is invoked.
