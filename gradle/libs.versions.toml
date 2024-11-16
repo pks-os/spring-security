@@ -14,7 +14,7 @@ org-jetbrains-kotlinx = "1.9.0"
 org-mockito = "5.14.2"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
-org-springframework = "6.2.0-RC3"
+org-springframework = "6.2.0"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.12"
@@ -89,7 +89,7 @@ org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.16"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.5"
-org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.7"
+org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.8"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 
@@ -107,7 +107,7 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.0.RELEASE'
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.1.RELEASE'
 
 [plugins]
 
