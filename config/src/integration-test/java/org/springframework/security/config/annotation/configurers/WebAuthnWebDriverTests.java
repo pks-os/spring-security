@@ -192,6 +192,11 @@ class WebAuthnWebDriverTests {
 		this.driver.findElement(passkeyLabel()).sendKeys("Virtual authenticator");
 		this.driver.findElement(registerPasskeyButton()).click();
 
+		// Ensure the page location has changed before performing further assertions.
+		// This is required because the location change is asynchronously performed in
+		// javascript, and performing assertions based on this.driver.findElement(...)
+		// may result in a StaleElementReferenceException.
+		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/webauthn/register?success"));
 		await(() -> assertHasAlertStartingWith("success", "Success!"));
 
 		List<WebElement> passkeyRows = this.driver.findElements(passkeyTableRows());
