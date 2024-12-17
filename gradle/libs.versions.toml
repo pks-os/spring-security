@@ -75,7 +75,7 @@ org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
-org-junit-junit-bom = "org.junit:junit-bom:5.11.3"
+org-junit-junit-bom = "org.junit:junit-bom:5.11.4"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-opensaml-opensaml-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml" }
 org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml" }
@@ -88,7 +88,7 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.16"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.1.0"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.1.1"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.10"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
