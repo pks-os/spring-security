@@ -39,11 +39,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.servlet.http.Cookie;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
@@ -58,9 +60,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -104,13 +108,16 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.context.TransientSecurityContext;
 import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyErrorStatus;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
@@ -179,6 +186,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
+import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
@@ -194,13 +202,25 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestBytes;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.util.ReflectionUtils;
 
@@ -442,6 +462,8 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(JaasAuthenticationSuccessEvent.class,
 				(r) -> new JaasAuthenticationSuccessEvent(authentication));
 		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
+		generatorByClassName.put(SecurityConfig.class, (r) -> new SecurityConfig("value"));
+		generatorByClassName.put(TransientSecurityContext.class, (r) -> new TransientSecurityContext(authentication));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
@@ -466,6 +488,11 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new LdapAuthority("USER", "username", Map.of("attribute", List.of("value1", "value2"))));
 		generatorByClassName.put(PasswordPolicyException.class,
 				(r) -> new PasswordPolicyException(PasswordPolicyErrorStatus.INSUFFICIENT_PASSWORD_QUALITY));
+		generatorByClassName.put(PasswordPolicyControl.class, (r) -> new PasswordPolicyControl(true));
+		generatorByClassName.put(PasswordPolicyResponseControl.class, (r) -> {
+			byte[] encodedResponse = { 0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA0, 0x1, 0x21 };
+			return new PasswordPolicyResponseControl(encodedResponse);
+		});
 
 		// saml2-service-provider
 		generatorByClassName.put(Saml2AuthenticationException.class,
@@ -521,9 +548,55 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+		generatorByClassName.put(SimpleSavedRequest.class, (r) -> {
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "/uri");
+			request.setQueryString("query=string");
+			request.setScheme("https");
+			request.setServerName("localhost");
+			request.setServerPort(80);
+			request.setRequestURI("/uri");
+			request.setCookies(new Cookie("name", "value"));
+			request.addHeader("header", "value");
+			request.addParameter("parameter", "value");
+			request.setPathInfo("/path");
+			request.addPreferredLocale(Locale.ENGLISH);
+			return new SimpleSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl(), "continue"));
+		});
 
 		// webauthn
-		generatorByClassName.put(Bytes.class, (r) -> TestBytes.get());
+		CredProtectAuthenticationExtensionsClientInput.CredProtect credProtect = new CredProtectAuthenticationExtensionsClientInput.CredProtect(
+				CredProtectAuthenticationExtensionsClientInput.CredProtect.ProtectionPolicy.USER_VERIFICATION_OPTIONAL,
+				true);
+		Bytes id = TestBytes.get();
+		AuthenticationExtensionsClientInputs inputs = new ImmutableAuthenticationExtensionsClientInputs(
+				ImmutableAuthenticationExtensionsClientInput.credProps);
+		// @formatter:off
+		PublicKeyCredentialDescriptor descriptor = PublicKeyCredentialDescriptor.builder()
+				.id(id)
+				.type(PublicKeyCredentialType.PUBLIC_KEY)
+				.transports(Set.of(AuthenticatorTransport.USB))
+				.build();
+		// @formatter:on
+		generatorByClassName.put(AuthenticatorTransport.class, (a) -> AuthenticatorTransport.USB);
+		generatorByClassName.put(PublicKeyCredentialType.class, (k) -> PublicKeyCredentialType.PUBLIC_KEY);
+		generatorByClassName.put(UserVerificationRequirement.class, (r) -> UserVerificationRequirement.REQUIRED);
+		generatorByClassName.put(CredProtectAuthenticationExtensionsClientInput.CredProtect.class, (c) -> credProtect);
+		generatorByClassName.put(CredProtectAuthenticationExtensionsClientInput.class,
+				(c) -> new CredProtectAuthenticationExtensionsClientInput(credProtect));
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInputs.class, (i) -> inputs);
+		Field credPropsField = ReflectionUtils.findField(ImmutableAuthenticationExtensionsClientInput.class,
+				"credProps");
+		generatorByClassName.put(credPropsField.getType(),
+				(i) -> ImmutableAuthenticationExtensionsClientInput.credProps);
+		generatorByClassName.put(Bytes.class, (b) -> id);
+		generatorByClassName.put(PublicKeyCredentialDescriptor.class, (d) -> descriptor);
+		// @formatter:off
+		generatorByClassName.put(PublicKeyCredentialRequestOptions.class, (o) -> TestPublicKeyCredentialRequestOptions.create()
+				.extensions(inputs)
+				.allowCredentials(List.of(descriptor))
+				.build()
+		);
+		// @formatter:on
 		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
 				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.get()).build());
 		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
